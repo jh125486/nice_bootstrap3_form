@@ -1,4 +1,4 @@
-# require 'nice_bootstrap3_form'
+require 'action_view'
 module NiceBootstrap3Form::Components
   INPUTS = ActionView::Helpers::FormBuilder.instance_methods.grep(/_(area|field|select)$/mx).map(&:to_sym) << :select
   INPUTS.delete(:hidden_field)

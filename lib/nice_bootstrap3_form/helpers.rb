@@ -1,4 +1,7 @@
+require 'active_support'
 module NiceBootstrap3Form::Helpers
+  include ActionView::Helpers::FormTagHelper
+
   def nice_bootstrap3_form_for(record, *args, &block)
     options = args.extract_options!
     options[:html] = { role: 'form' } if options[:html].nil?
@@ -22,8 +25,8 @@ module NiceBootstrap3Form::Helpers
     options = args.extract_options!
     btn_text = args.shift
     to = args.shift
-    klasses = btn_classes(options[:state], options[:size], options[:class])
-    to ? link_to(btn_text, to, class: klasses, &block) : button(*(args << { class: klasses }), &block)
+    options[:class] = btn_classes(options[:state], options[:size], options[:class])
+    to ? link_to(btn_text, to, options, &block) : button_tag(btn_text, *(args << options), &block)
   end
 
   def btn_classes(state, size = nil, *classes)

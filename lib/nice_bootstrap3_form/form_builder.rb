@@ -9,13 +9,13 @@
     # select(key, klass.all.map {|obj| [obj.send(options_attribute), obj.id] }, *(args << options))
   # end
 # require_relative 'helpers'
-
+require 'nested_form/builder_mixin'
 class NiceBootstrap3Form::FormBuilder < ActionView::Helpers::FormBuilder
   include NestedForm::BuilderMixin
   include ::NiceBootstrap3Form::Helpers
-  include NiceBootstrap3Form::Classes
-  include NiceBootstrap3Form::Wrappers
-  include NiceBootstrap3Form::Components
+  include ::NiceBootstrap3Form::Classes
+  include ::NiceBootstrap3Form::Wrappers
+  include ::NiceBootstrap3Form::Components
 
   attr_reader :template, :object, :object_name
   attr_accessor :horizontal, :input_width
@@ -104,6 +104,6 @@ end
 
 # XXX  move this to another module NiceBootstrap3FormFor::FormHelpers   'nice_bootstrap3_form_for/form_helpers.rb'
 # remove wrapping 'field_with_errors' div
-ActionView::Base.field_error_proc = proc { |html_tag, instance|
-  "#{html_tag}".html_safe
-}
+# ActionView::Base.field_error_proc = proc { |html_tag, instance|
+  # "#{html_tag}".html_safe
+# }
