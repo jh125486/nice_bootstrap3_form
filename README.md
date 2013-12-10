@@ -1,6 +1,6 @@
 # NiceBootstrap3Form
 
-TODO: Write a gem description
+A simple helper to deal with Twitter Bootstrap 3 and forms.  Also includes ActionView helpers for creating panels, buttons, buttongroups and wells.
 
 ## Installation
 
@@ -18,7 +18,28 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Forms
+
+
+
+### Helpers
+
+#### BS3 Buttons
+Button tag styled as a BS3 button
+`<%= btn('This is a button') %> --> <button type="submit" name="button" class="btn btn-default">This is a button</button>`
+
+Anchor tag styled as a BS3 button
+`<%= btn('This is a Link', root_path, state: 'danger') %> --> <a href="/" class="btn btn-danger">This is a Link</a>`
+
+Method signature: `btn(btn_text, link_to (optional), options)`
+Options:
+*   :state
+*   :size
+*   :class
+
+* * *
+
+Panels
 
 ## Contributing
 

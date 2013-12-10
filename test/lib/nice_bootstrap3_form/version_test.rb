@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
-describe NiceBootstrap3Form do
-  it "must be defined" do
-    NiceBootstrap3Form::VERSION.wont_be_nil
+class TestNiceBootstrap3Form < MiniTest::Unit::TestCase
+  def test_version_must_be_defined
+    refute_nil NiceBootstrap3Form::VERSION
   end
 end

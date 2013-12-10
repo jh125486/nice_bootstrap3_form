@@ -1,10 +1,18 @@
 module NiceBootstrap3Form::Wrappers
   def _offset_wrapper(&block)
-    horizontal ? content_tag(:div, class: _input_offset, &block) : block.call
+    if horizontal
+      content_tag(:div, class: _input_offset_classes, &block)
+    else
+      block.call
+    end
   end
 
   def _input_group_wrapper(attribute, &block)
-    !@inside_group ? content_tag(:div, class: _form_group_classes(attribute), &block) : block.call
+    if @inside_group
+      block.call
+    else
+      content_tag(:div, class: _form_group_classes(attribute), &block)
+    end
   end
 
   def _input_wrapper(attribute, &block)

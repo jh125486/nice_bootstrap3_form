@@ -8,14 +8,15 @@ module NiceBootstrap3Form::Components
   INPUTS.each do |input|
     define_method input do |attribute, *args, &block|
       options = args.extract_options!
-      input_options = options.except!(INPUT_PARAMS).merge(class: _form_control_classes(attribute, options[:class]))
+      input_options = options.except(*INPUT_PARAMS).merge(class: _form_control_classes(attribute, options[:class]))
       _input_group_wrapper(attribute) do
-        input_label(attribute, options) +
-        _input_wrapper(attribute) do
-          concat super(attribute, *(args << input_options))
-          concat help_block(options[:help_text], class: options[:help_text_class]) if options[:help_text]
-          concat help_block('ERROR: ' + errors_for(attribute)) if errors_on?(attribute) && !@inside_group
-          block.call if block.present?
+        input_label_wrapper(attribute, options) do
+          _input_wrapper(attribute) do
+            concat super(attribute, *(args << input_options))
+            concat help_block(options[:help_text], class: options[:help_text_class]) if options[:help_text]
+            concat help_block('ERROR: ' + errors_for(attribute)) if errors_on?(attribute) && !@inside_group
+            block.call if block.present?
+          end
         end
       end
     end
@@ -46,10 +47,9 @@ module NiceBootstrap3Form::Components
 
   def form_actions(*args, &block)
     options = args.extract_options!
-    klasses = %w(form-group actions text-center) << options[:class]
     submit_btn_text = (object.new_record? ? 'Create' : 'Update') + ' ' + object_name.humanize
 
-    content_tag(:div, class: klasses) do
+    content_tag(:div, class: form_actions_classes(options[:class])) do
       _offset_wrapper do
         concat btn(submit_btn_text, type: 'submit', state: 'primary', class: 'pull-left')
         concat btn('Cancel', :back, state: 'warning', class: 'pull-right')
@@ -58,26 +58,36 @@ module NiceBootstrap3Form::Components
     end
   end
 
+  def form_actions_classes(*classes)
+    classes.tap do |klasses|
+      klasses << 'form-group' << 'actions' << 'text-center'
+    end.compact_squish_join
+  end
+
   def help_block(*args, &block)
     options = args.extract_options!
-    klasses = %w(help-block)
-    klasses << options[:class]
-    klasses << _input_offset if @inside_group
-    text = args.shift
+    text = args.shift.html_safe || ''.html_safe
     text += capture(&block) if block_given?
-    content_tag(:p, text, class: klasses.uniq.compact)
+    content_tag(:p, text, class: help_block_classes(options[:class]))
+  end
+
+  def help_block_classes(*classes)
+    classes.tap do |klasses|
+      klasses << 'help-block'
+      klasses << _input_offset_classes if @inside_group
+    end.compact_squish_join
   end
 
   def form_errors_panel(*args, &block)
     if object.errors.any?
       options = args.extract_options!
-      panel_state = options[:state] || 'danger'
-      klasses = %w(panel) << "panel-#{panel_state}" << options[:class]
+      state = options[:state] || 'danger'
       title = args.shift || "#{pluralize object.errors.count, 'error'} prohibited this #{object_name} from being saved:"
       errors = object.errors.full_messages.map { |msg| content_tag :li, icon_and_text('alert', msg) }.reduce(:<<)
-      panel_body = content_tag(:ul, errors, class: 'list-unstyled')
-      panel_body += capture(&block) if block_given?
-      panel id: 'error_explanation', class: klasses, title: title, body: panel_body, footer: options[:footer_text]
+      body = content_tag(:ul, errors, class: 'list-unstyled')
+      body += capture(&block) if block_given?
+      id = 'error_explanation'
+      panel id: id, state: state, class: options[:class], title: title, body: body, footer: options[:footer_text]
     end
   end
 
@@ -96,13 +106,20 @@ module NiceBootstrap3Form::Components
     end
   end
 
+  def addon(*args)
+    options = args.extract_options!
+    text = args.shift || options[:text]
+    content_tag(:span, text, class: _input_addon_classes(options[:class]))
+  end
+
   private
 
-  def input_label(attr, options)
-    if (options[:label] && @inside_group) || !@inside_group
-      label(attr, options[:label] || attr.humanize, class: _control_label_classes(attr, options[:class]))
+  def input_label_wrapper(attr, options, &block)
+    if !options[:label].false? && ((options[:label] && @inside_group) || !@inside_group)
+      label(attr, options[:label] || attr.to_s.humanize, class: _control_label_classes(attr, options[:class])) +
+      yield
     else
-      ''.html_safe
+      yield
     end
   end
 end
