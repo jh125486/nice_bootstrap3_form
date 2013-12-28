@@ -1,3 +1,4 @@
+# encoding: utf-8
 module NiceBootstrap3Form::Classes
   def _form_group_classes(attribute, *classes)
     classes.tap do |klasses|
@@ -56,6 +57,16 @@ module NiceBootstrap3Form::Classes
     classes.tap do |klasses|
       klasses << 'input-group-addon'
     end.compact_squish_join
+  end
+
+  def _toggle_class(toggle_type)
+    if @inside_group
+      'input-group-addon'
+    elsif toggle_type.eql?(:check_box)
+      'checkbox'
+    else
+      'radio'
+    end
   end
 
   private

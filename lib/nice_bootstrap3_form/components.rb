@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'action_view'
 module NiceBootstrap3Form::Components
   INPUTS = ActionView::Helpers::FormBuilder.instance_methods.grep(/_(area|field|select)$/mx).map(&:to_sym) << :select
@@ -11,7 +12,7 @@ module NiceBootstrap3Form::Components
       input_options = options.except(*INPUT_PARAMS).merge(class: _form_control_classes(attribute, options[:class]))
       _input_group_wrapper(attribute) do
         input_label_wrapper(attribute, options) do
-          _input_wrapper(attribute) do
+          _input_wrapper(attribute, options) do
             concat super(attribute, *(args << input_options))
             concat help_block(options[:help_text], class: options[:help_text_class]) if options[:help_text]
             concat help_block('ERROR: ' + errors_for(attribute)) if errors_on?(attribute) && !@inside_group
@@ -26,10 +27,9 @@ module NiceBootstrap3Form::Components
     define_method toggle do |attribute, *args, &block|
       options = args.extract_options!
       label = options[:label] || attribute.humanize
-      klass = toggle.eql?(:check_box) ? 'checkbox' : 'radio'
       _input_group_wrapper(attribute) do
         _offset_wrapper do
-          content_tag(:div, class: klass) do
+          content_tag(:div, class: _toggle_class(toggle)) do
             template.label(object_name, attribute, label) do
               concat super(attribute, *args)
               concat label

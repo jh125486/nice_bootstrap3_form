@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Array
   def compact_squish_join(separator = ' ')
     flatten.uniq.compact.join(separator).gsub(/  /, ' ').gsub(/^ /, '').gsub(/ $/, '')

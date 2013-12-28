@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
   # def association(label, *args)
     # label = label.to_s
@@ -24,14 +25,14 @@ class NiceBootstrap3Form::FormBuilder < ActionView::Helpers::FormBuilder
   DEFAULTS = {
     media: 'lg', # media/page column sizing
     size:  nil,  # field size
-    horizontal: false
+    horizontal: false,
+    input_width: 10,
+    label_width: 2
   }
 
   def initialize(*args)
     options = args.extract_options!
-    DEFAULTS.merge(options).each do |key, value|
-      instance_variable_set(:"@#{key}", value)
-    end
+    DEFAULTS.merge(options).each { |key, value| instance_variable_set(:"@#{key}", value) }
     set_label_and_input_width(options[:label_width], options[:input_width])
     options[:html] ||= {}
     options[:html][:class] ||= ''
@@ -40,28 +41,26 @@ class NiceBootstrap3Form::FormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def input_group(*args, &block)
-    options, label, klasses = _form_group_setup(args)
+    options, label, klasses, help = _form_group_setup(args)
     offset = !label && horizontal
-    size, help_block, label_classes, help_block_classes = _input_group_setup(options)
+    size, label_classes = _input_group_setup(options)
     content_tag(:div, class: klasses) do
       concat content_tag(:label, label.humanize, class: label_classes) if label
       concat _input_group_content(options, _input_group_classes(size, offset), &block)
-      concat content_tag(:div,   help_block, class: help_block_classes) unless help_block.empty?
+      concat help unless help.empty?
     end
   end
 
   def btn_group(*args, &block)
-    options, label, klasses = _form_group_setup(args)
-    @inside_group = true
-    @btn_state = options[:state]
+    options, label, klasses, help = _form_group_setup(args)
+    entering_input_group options[:state]
     content = content_tag(:div, class: _btn_group_classes(options[:size] || @size), data: { toggle: 'buttons' }, &block)
     content += clear_button(:radio) if options[:clear_button]
-    @inside_group = false
-    @btn_state = nil
+    exiting_input_group
     content_tag(:div, class: klasses) do
       concat content_tag(:label, label.humanize, class: _control_label_classes) if label
       concat content_tag(:div, content, class: _btn_toolbar_classes(!label && horizontal))
-      concat help_block_for_group(options)
+      concat help unless help.empty?
     end
   end
 
@@ -81,32 +80,40 @@ class NiceBootstrap3Form::FormBuilder < ActionView::Helpers::FormBuilder
 
   private
 
+  def entering_input_group(state = nil)
+    @inside_group, @btn_state = true, state
+  end
+
+  def exiting_input_group
+    @inside_group, @btn_state = false, nil
+  end
+
   def help_block_for_group(options)
     content = ''.html_safe
-    content << help_block(options[:help_text], class: options[:help_text_class]) if options[:help_text]
-    content << help_block('ERROR: ' + errors_for(options[:has_error_on])) if errors_on?(options[:has_error_on])
-    content.blank? ? '' : content_tag(:div, content, class: (_input_offset_classes if horizontal))
+    content << options[:help_text] if options[:help_text]
+    content << ('ERROR: ' + errors_for(options[:has_error_on])) if errors_on?(options[:has_error_on])
+    content.blank? ? '' : content
   end
 
   def _form_group_setup(args)
     options = args.extract_options!
     label = args.shift
-    [options, label, _form_group_classes(options[:has_error_on], options[:class])]
+    help_text = help_block_for_group(options)
+    help = help_block(help_text, class: (_input_offset_classes if horizontal)) if help_text
+    [options, label, _form_group_classes(options[:has_error_on], options[:class]), help]
   end
 
   def _input_group_setup(options)
     size = options[:size] || @size
-    help_block = help_block_for_group(options)
     label_classes = _control_label_classes(options[:has_error_on])
-    help_block_classes = _input_offset_classes if horizontal
-    [size, help_block, label_classes, help_block_classes]
+    [size, label_classes]
   end
 
   def _input_group_content(options, klasses, &block)
-    @inside_group = true
+    entering_input_group
     content = capture(&block)
     content += clear_button(:text_field) if options[:clear_button]
-    @inside_group = false
+    exiting_input_group
     content_tag(:div, content, class: klasses)
   end
 

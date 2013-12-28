@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'active_support'
 module NiceBootstrap3Form::Helpers
   include ActionView::Helpers::FormTagHelper
@@ -97,7 +98,7 @@ module NiceBootstrap3Form::Helpers
 
   private
 
-  BLANK_FIELD_ERROR_PROC = ->(input, _){ input }
+  BLANK_FIELD_ERROR_PROC = ->(input, _) { input }
 
   def _override_field_error_proc
     original_field_error_proc = ::ActionView::Base.field_error_proc

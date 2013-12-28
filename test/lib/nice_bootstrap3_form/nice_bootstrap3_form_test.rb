@@ -78,8 +78,16 @@ class NiceBootstrap3FormTest < ActionView::TestCase
     end
     assert_select 'form.form-horizontal', count: 1
     assert_select 'div.form-group label.control-label.col-lg-3', count: 1
-    assert_select 'div.form-group div.col-lg-9 input.form-control', count: 1
-    assert_select 'div.form-group div.col-lg-9 p.help-block', count: 1, text: 'This should be offset'
+    assert_select 'div.form-group div.col-lg-9 > input.form-control', count: 1
+    assert_select 'div.form-group div.col-lg-9 > p.help-block', count: 1, text: 'This should be offset'
+  end
+
+  test 'return input with offset when no label parameter in horzontal form (with default widths)' do
+    with_form_for @article, horizontal: true do |f|
+      f.text_field :title, label: false
+    end
+    assert_select 'div.form-group label.control-label', false
+    assert_select 'div.form-group > div.col-lg-10.col-lg-offset-2 > input.form-control'
   end
 
   test 'return input group with text field and addon' do
@@ -105,6 +113,8 @@ class NiceBootstrap3FormTest < ActionView::TestCase
 
   # test errors on form with has-error
 end
+
+# puts response_from_page  # debugs response
 
 # mock article w/ paragraphs
 # mock article w/ paragraphs errors

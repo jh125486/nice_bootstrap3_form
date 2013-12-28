@@ -1,3 +1,4 @@
+# encoding: utf-8
 module NiceBootstrap3Form::Wrappers
   def _offset_wrapper(&block)
     if horizontal
@@ -15,9 +16,10 @@ module NiceBootstrap3Form::Wrappers
     end
   end
 
-  def _input_wrapper(attribute, &block)
+  def _input_wrapper(attribute, options, &block)
     if horizontal && !@inside_group
-      content_tag(:div, class: @input_width_class, &block)
+      klasses = options[:label].false? ? _input_offset_classes : @input_width_class
+      content_tag(:div, class: klasses, &block)
     else
       capture(&block)
     end
